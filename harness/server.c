@@ -13,7 +13,7 @@ void start_server(int port, JavaVM *vm, JNIEnv *env, decryptString_t decryptStri
   // Set socket to be reusable because we use fork and socket might get stuck
   setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, & option, sizeof(option));
   if (sockfd < 0) {
-    perror("[!] ERROR opening socket");
+    perror(" [!] ERROR opening socket");
     return;
   }
 
@@ -24,7 +24,7 @@ void start_server(int port, JavaVM *vm, JNIEnv *env, decryptString_t decryptStri
   serv_addr.sin_port = htons(port);
 
   if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-    perror("[!] ERROR binding socket");
+    perror(" [!] ERROR binding socket");
     return;
   }
 
@@ -34,13 +34,13 @@ void start_server(int port, JavaVM *vm, JNIEnv *env, decryptString_t decryptStri
   while (1) {
     newsockfd = accept(sockfd, (struct sockaddr*)&cli_addr, &clilen);
     if (newsockfd < 0) {
-      perror("[!] ERROR on socket accept");
+      perror(" [!] ERROR on socket accept");
       return;
     }
 
     pid = fork();
     if (pid < 0) {
-      perror("[!] ERROR on socket fork");
+      perror(" [!] ERROR on socket fork");
       return;
     }
 
@@ -49,7 +49,7 @@ void start_server(int port, JavaVM *vm, JNIEnv *env, decryptString_t decryptStri
       // Child process
       close(sockfd);
 
-      printf("[+] Connection accepted\n");
+      printf(" [+] Connection accepted\n");
       do {
         buffer = (char *) malloc(sizeof(char) * (MAX_LINE_LEN + 1));
         ret = read_line(newsockfd, buffer, MAX_LINE_LEN);
@@ -65,7 +65,7 @@ void start_server(int port, JavaVM *vm, JNIEnv *env, decryptString_t decryptStri
         enc_str = (*env)->NewStringUTF(env, buffer);
         jstring result = decryptString(env, cryptor_instance, enc_str);
         const char *str = (*env)->GetStringUTFChars(env, result, NULL);
-        printf("[+] Sending decrypted string\n");
+        printf(" [+] Sending decrypted string\n");
         write(newsockfd, str, strlen(str));
 
         free(buffer);

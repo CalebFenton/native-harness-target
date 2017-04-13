@@ -20,5 +20,4 @@ public class MainActivity extends AppCompatActivity {
         Cryptor c = Cryptor.getInstance();
         tv.setText(c.decryptString(new String(encryptedStringBytes)));
     }
-
 }

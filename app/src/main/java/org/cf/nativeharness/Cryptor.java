@@ -13,5 +13,4 @@ public class Cryptor {
     }
 
     public native String decryptString(String encryptedString);
-
 }

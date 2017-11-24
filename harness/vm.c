@@ -17,6 +17,10 @@ int init_jvm(JavaVM **p_vm, JNIEnv **p_env) {
   void *libdvm_dso = dlopen("libdvm.so", RTLD_NOW);
   void *libandroid_runtime_dso = dlopen("libandroid_runtime.so", RTLD_NOW);
 
+  if (!libdvm_dso) {
+    libdvm_dso = dlopen("libart.so", RTLD_NOW);
+  }
+
   if (!libdvm_dso || !libandroid_runtime_dso) {
     return -1;
   }
@@ -30,7 +34,12 @@ int init_jvm(JavaVM **p_vm, JNIEnv **p_env) {
   registerNatives_t registerNatives;
   registerNatives = (registerNatives_t) dlsym(libandroid_runtime_dso, "Java_com_android_internal_util_WithFramework_registerNatives");
   if (!registerNatives) {
-    return -3;
+    // From Android 7.1.1, withFramework functions are removed.
+    // If the "old" functions did not exists, use the new ones
+    registerNatives = (registerNatives_t) dlsym(libandroid_runtime_dso, "registerFrameworkNatives");
+    if(!registerNatives) {
+      return -3;
+    }
   }
 
   if (JNI_CreateJavaVM(&(*p_vm), &(*p_env), &args)) {
@@ -42,4 +51,32 @@ int init_jvm(JavaVM **p_vm, JNIEnv **p_env) {
   }
 
   return 0;
+}
+
+JNIEXPORT void InitializeSignalChain() {
+
+}
+
+JNIEXPORT void ClaimSignalChain() {
+
+}
+
+JNIEXPORT void UnclaimSignalChain() {
+
+}
+
+JNIEXPORT void InvokeUserSignalHandler() {
+
+}
+
+JNIEXPORT void EnsureFrontOfChain() {
+
+}
+
+JNIEXPORT void AddSpecialSignalHandlerFn() {
+
+}
+
+JNIEXPORT void RemoveSpecialSignalHandlerFn() {
+
 }
